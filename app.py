@@ -25,8 +25,8 @@ def registration():
         session['confirmation'] = request.form['confirmation']
         email = session['email']
         db.mycursor.execute("SELECT * FROM CUSTOMER WHERE EMAIL=%s", (email,))
-        checkUsername = db.mycursor.fetchone()
-        if session['password'] != session['confirmation'] or checkUsername:
+        checkEmail = db.mycursor.fetchone()
+        if session['password'] != session['confirmation'] or checkEmail:
             error = "The email provided is already registered."
             return render_template("registration.html", error=error)
         else:
@@ -48,18 +48,23 @@ def account_details():
 
 @app.route('/signout')
 def signout():
-    session['first_name'] = []
-    session['last_name'] = []
-    session['username'] = []
-    session['email'] = []
-    session['password'] = []
-    session['confirmation'] = []
+    session.clear()
     return redirect(url_for('home'))
 
 
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login():
-    return render_template("login.html")
+    if request.method == 'POST':
+        session['username'] = request.form['username']
+        session['password'] = request.form['password']
+        username = session['username']
+        db.mycursor.execute("SELECT * FROM CUSTOMER WHERE USERNAME = %s", (username,))
+        checkPassword = db.mycursor.fetchone()
+        if checkPassword:
+            stored_password = checkPassword[6]
+            if session['password'] == stored_password:
+                return redirect(url_for('home'))
+            return redirect(url_for('registration'))
 
 
 def to_database():
