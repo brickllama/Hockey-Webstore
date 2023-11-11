@@ -9,7 +9,7 @@ app.secret_key = 'pineapple'
 
 @app.route('/', methods=['GET'])
 def home():
-    if len(session['email']) == 0:
+    if 'username' not in session:
         return redirect(url_for('registration'))
     return render_template("index.html", username=session['username'])
 
@@ -37,6 +37,17 @@ def registration():
 
 @app.route('/account_details')
 def account_details():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    else:
+        username = session['username']
+        db.mycursor.execute("SELECT FIRST_NAME, LAST_NAME, USERNAME, EMAIL FROM CUSTOMER WHERE USERNAME=%s", (username,))
+        result = db.mycursor.fetchall()
+        for row in result:
+            session['first_name'] = row[0]
+            session['last_name'] = row[1]
+            session['username'] = row[2]
+            session['email'] = row[3]
     return render_template(
         "accountdetails.html",
         first_name=session['first_name'],
@@ -52,19 +63,20 @@ def signout():
     return redirect(url_for('home'))
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         session['username'] = request.form['username']
         session['password'] = request.form['password']
-        username = session['username']
-        db.mycursor.execute("SELECT * FROM CUSTOMER WHERE USERNAME = %s", (username,))
+        db.mycursor.execute("SELECT PASSWORD FROM CUSTOMER WHERE USERNAME=%s", (session['username'],))
         checkPassword = db.mycursor.fetchone()
-        if checkPassword:
-            stored_password = checkPassword[6]
-            if session['password'] == stored_password:
-                return redirect(url_for('home'))
-            return redirect(url_for('registration'))
+        if checkPassword is not None and hashlib.sha256(session['password'].encode()).hexdigest() == checkPassword[0]:
+            return redirect(url_for('home'))
+        else:
+            error = "Username or password may be incorrect"
+            session.pop('password', None)
+            return render_template("login.html", error=error)
+    return render_template("login.html")
 
 
 def to_database():
