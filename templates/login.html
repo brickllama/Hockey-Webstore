@@ -7,14 +7,16 @@
     <body>
         <h1><center>Hockey Shop</center></h2>
         <h1>Please enter your login details</h1>
+        <h2 style="color: red;"> {{ error }}</h2>
         <div class="registration">
             <h2 style="color: red;"></h2>
-            <form action="/login" method="POST">
+            <form action="/login" autocomplete="off" method="POST">
                 <label class="required" for="username">Username:</label>
                 <input type="text" id="username" name="username"><br><br>
                 <label class="required" for="password">Password:</label>
-                <input type="text" id="password" name="password"><br><br>
+                <input type="password" id="password" name="password"><br><br>
                 <input type="submit" value="Submit">
+                <button style="float: right"><a href="/registration">Create account</a></button>
                 <button style="float: right;"><a href="/">Home Page</a></button>
             </form>
         </div>
