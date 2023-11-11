@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Flask Index</title>
+    <link href="static/main.css" rel="stylesheet">
+    </head>
+    <body>
+        <h1><center>Hockey Shop</center></h2>
+        <h1>Please enter your login details</h1>
+        <div class="registration">
+            <h2 style="color: red;"></h2>
+            <form action="/registration" method="POST">
+                <label class="required" for="username">Username:</label>
+                <input type="text" id="username" name="username"><br><br>
+                <label class="required" for="password">Password:</label>
+                <input type="text" id="password" name="password"><br><br>
+                <input type="submit" value="Submit">
+                <button style="float: right;"><a href="/">Home Page</a></button>
+            </form>
+        </div>
+    </body>
+</html>
