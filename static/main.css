@@ -1,0 +1,8 @@
+.required::after {
+    content: " *";
+    color: red;
+}
+
+.registration {
+    background-color: whitesmoke;
+}
