@@ -17,20 +17,19 @@ def home():
 @app.route('/registration', methods=['GET', 'POST'])
 def registration():
     if request.method == 'POST':
-        session['first_name'] = request.form['first name']
-        session['last_name'] = request.form['last name']
-        session['username'] = request.form['username']
-        session['email'] = request.form['email']
-        session['password'] = request.form['password']
-        session['confirmation'] = request.form['confirmation']
-        email = session['email']
-        db.mycursor.execute("SELECT * FROM CUSTOMER WHERE EMAIL=%s", (email,))
+        email = request.form['email']
+        username = request.form['username']
+        db.mycursor.execute("SELECT * FROM CUSTOMER WHERE EMAIL=%s OR USERNAME=%s", (email,username))
         checkEmail = db.mycursor.fetchone()
-        if session['password'] != session['confirmation'] or checkEmail:
-            error = "The email provided is already registered."
+        if request.form['password'] != request.form['confirmation']:
+            error = "Passwords don't match"
+            return render_template("registration.html", error=error)
+        elif checkEmail:
+            error = "The email or username provided is already registered."
             return render_template("registration.html", error=error)
         else:
-            to_database()
+            session['username'] = request.form['username']
+            to_database(request.form)
             return redirect(url_for('home'))
     return render_template("registration.html")
 
@@ -41,13 +40,12 @@ def account_details():
         return redirect(url_for('login'))
     else:
         username = session['username']
-        db.mycursor.execute("SELECT FIRST_NAME, LAST_NAME, USERNAME, EMAIL FROM CUSTOMER WHERE USERNAME=%s", (username,))
+        db.mycursor.execute("SELECT FIRST_NAME, LAST_NAME, EMAIL FROM CUSTOMER WHERE USERNAME=%s", (username,))
         result = db.mycursor.fetchall()
-        for row in result:
-            session['first_name'] = row[0]
-            session['last_name'] = row[1]
-            session['username'] = row[2]
-            session['email'] = row[3]
+        for (first_name, last_name, email) in result:
+            session['first_name'] = first_name
+            session['last_name'] = last_name
+            session['email'] = email
     return render_template(
         "accountdetails.html",
         first_name=session['first_name'],
@@ -79,12 +77,12 @@ def login():
     return render_template("login.html")
 
 
-def to_database():
-    password_bytes = session['password'].encode('utf-8')
+def to_database(form):
+    password_bytes = form['password'].encode('utf-8')
     hash_object = hashlib.sha256(password_bytes)
     password_hash = hash_object.hexdigest()
-    sql = "INSERT INTO CUSTOMER (FIRST_NAME, LAST_NAME, USERNAME, EMAIL, PASSWORD, CONFIRMATION) VALUES (%s, %s, %s, %s, %s, %s)"
-    val = (session['first_name'], session['last_name'], session['username'], session['email'], password_hash, password_hash)
+    sql = "INSERT INTO CUSTOMER (FIRST_NAME, LAST_NAME, USERNAME, EMAIL, PASSWORD) VALUES (%s, %s, %s, %s, %s)"
+    val = (form['first name'], form['last name'], form['username'], form['email'], password_hash)
     return db.mycursor.execute(sql, val), db.mydb.commit()
 
 
