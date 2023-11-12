@@ -6,15 +6,25 @@
     </head>
     <body>
         <h1><center>Hockey Shop</center></h2>
-        <h1>YOU MUST REGISTER TO CONTINUE</h1>
-        <div class="registration">
-            <h2 style="color: red;">{{ error }}</h2>
+        <h1>YOU MUST LOGIN TO CONTINUE</h1>
+	<div style="margin:30px">
+        <h2 style="color: red;">{{ error }}</h2>
+	<div class="login" style="float: left">
+            <h2>Already have an account?</h2>
+            <form action="/login" autocomplete="off" method="POST">
+                <label class="required" for="username">Username:</label>
+                <input type="text" id="username" name="username"><br><br>
+                <label class="required" for="password">Password:</label>
+                <input type="password" id="password" name="password"><br><br>
+                <input type="submit" value="Login">
+            </form>
+	</div>
+        <div class="registration" style="float: right">
+            <h2>Register for an account.</h2>
             <form action="/registration" autocomplete="off" method="POST">
                 <br><label class="required" for="first name">First name:</label>
-                <h2 style="float: right;">Already have an account?</h2>
                 <input classtype="text" id="first name" name="first name"><br><br>
                 <label class="required" for="last name">Last name:</label>
-                <p style="float: right;">Login <a href="/login">Here</a></p>
                 <input type="text" id="last name" name="last name"><br><br>
                 <label class="required" for="username">Username:</label>
                 <input type="text" id="username" name="username"><br><br>
@@ -24,8 +34,9 @@
                 <input type="password" id="password" name="password"><br><br>
                 <label class="required" for="confirmation">Confirm Password:</label>
                 <input type="password" id="confirmation" name="confirmation"><br><br>
-                <input type="submit" value="Submit">
+                <input type="submit" value="Register">
             </form>
+        </div>
         </div>
     </body>
 </html>
