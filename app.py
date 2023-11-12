@@ -19,16 +19,16 @@ def registration():
     if request.method == 'POST':
         email = request.form['email']
         username = request.form['username']
-        db.mycursor.execute("SELECT * FROM CUSTOMER WHERE EMAIL=%s OR USERNAME=%s", (email,username))
-        checkEmail = db.mycursor.fetchone()
+        db.mycursor.execute("SELECT EMAIL, USERNAME FROM CUSTOMER WHERE EMAIL=%s OR USERNAME=%s", (email,username))
+        results = db.mycursor.fetchone()
         if request.form['password'] != request.form['confirmation']:
             error = "Passwords don't match"
             return render_template("registration.html", error=error)
-        elif checkEmail:
+        elif results:
             error = "The email or username provided is already registered."
             return render_template("registration.html", error=error)
         else:
-            session['username'] = request.form['username']
+            session['username'] = results[1]
             to_database(request.form)
             return redirect(url_for('home'))
     return render_template("registration.html")
@@ -40,18 +40,16 @@ def account_details():
         return redirect(url_for('login'))
     else:
         username = session['username']
-        db.mycursor.execute("SELECT FIRST_NAME, LAST_NAME, EMAIL FROM CUSTOMER WHERE USERNAME=%s", (username,))
+        db.mycursor.execute("SELECT USERNAME, FIRST_NAME, LAST_NAME, EMAIL FROM CUSTOMER WHERE USERNAME=%s", (username,))
         result = db.mycursor.fetchall()
-        for (first_name, last_name, email) in result:
-            session['first_name'] = first_name
-            session['last_name'] = last_name
-            session['email'] = email
+        for username, first_name, last_name, email in result:
+            pass
     return render_template(
         "accountdetails.html",
-        first_name=session['first_name'],
-        last_name=session['last_name'],
-        username=session['username'],
-        email=session['email'],
+        first_name=first_name,
+        last_name=last_name,
+        username=username,
+        email=email,
         )
 
 
@@ -64,11 +62,10 @@ def signout():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        session['username'] = request.form['username']
-        session['password'] = request.form['password']
-        db.mycursor.execute("SELECT PASSWORD FROM CUSTOMER WHERE USERNAME=%s", (session['username'],))
-        checkPassword = db.mycursor.fetchone()
-        if checkPassword is not None and hashlib.sha256(session['password'].encode()).hexdigest() == checkPassword[0]:
+        db.mycursor.execute("SELECT USERNAME, PASSWORD FROM CUSTOMER WHERE USERNAME=%s", (request.form['username'],))
+        results = db.mycursor.fetchone()
+        if results and hashlib.sha256(request.form['password'].encode()).hexdigest() == results[1]:
+            session['username'] = results[0]
             return redirect(url_for('home'))
         else:
             error = "Username or password may be incorrect"
