@@ -5,8 +5,18 @@
 
 .registration {
     background-color: whitesmoke;
+    border: 1px solid black;
+    padding: 10px;
 }
 
 .login {
     background-color: whitesmoke;
+    border: 1px solid black;
+    padding: 10px;
+}
+
+.loginprompt {
+    background-color: whitesmoke;
+    border: 1px solid black;
+    padding: 10px;
 }
