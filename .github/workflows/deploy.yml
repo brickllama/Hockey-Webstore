@@ -1,0 +1,10 @@
+on: [push]
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: update working tree
+        run: git fetch -a && git reset --hard origin/main
+        env:
+          GIT_DIR: ~/app-root.git
+          GIT_WORK_TREE: ~/app-root
